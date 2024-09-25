@@ -3,5 +3,3 @@ title: "Practica 2"
 format: html
 editor: visual
 ---
-
-
