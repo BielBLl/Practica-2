@@ -3,44 +3,45 @@ title: "Pràctica 2"
 format: html
 editor: visual
 ---
+
 El nostre grup està composat per quatre integrants: Biel Bauzà, Eulàlia Tous, Marc Arrom i Rebeca Payá.
 
-En aquest informe estudiarem els resultats de l'enquesta sobre salut vocal realitzada pels investigadors Daniel Covacho, Esperanza Mulet i Pilar Riera sobre els símptomes vocals al professorat. En particular, nosaltres intentarem veure si hi ha més baixes pel tema vocal al principi de curs, Açò és interessant respondre-ho ja que en cas afirmatiu podria significar la millora de la qualitat en la tècnica emprada pels professors a l'hora de donar les classes.
+En aquest informe estudiarem els resultats de l'enquesta sobre salut vocal realitzada pels investigadors Daniel Covacho, Esperanza Mulet i Pilar Riera sobre els símptomes vocals al professorat. En particular, nosaltres intentarem veure
 
-```{r}
+```{r, include=FALSE}
 library(tidyverse)
 ```
 
-
-```{r}
+```{r, include=FALSE}
 dt<-read.csv2("Salut_Vocal_anonimizada.csv")
 dt.1%>%as_tibble 
 dt<-dt.1
-
+dt %>% colnames
 ```
 
-
-
-
-```{r}
-f<-function(x,dt)(
-  dt<-dt%>% mutate(x=recode(x,"Mai"=0,"Gairebé mai"=1,"A vegades"=2,"Gairebé sempre"=3,"Sempre"=4))
-)
-```
-
-
-```{r}
+```{r, include=FALSE}
 dt<-dt%>% mutate(La.gent.em.sent.amb.dificultat.a.causa.de.la.meva.veu=recode(La.gent.em.sent.amb.dificultat.a.causa.de.la.meva.veu,"Mai"=0,"Gairebé mai"=1,"A vegades"=2,"Gairebé sempre"=3,"Sempre"=4))
+
+dt <- dt %>% mutate(Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social = recode(Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
+
+dt <- dt %>% mutate(La.gent.no.m.entén.en.llocs.sorollosos = recode(La.gent.no.m.entén.en.llocs.sorollosos, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
+
+dt <- dt %>% mutate(Em.sent.desplaçat.de.les.converses.per.la.meva.veu = recode(Em.sent.desplaçat.de.les.converses.per.la.meva.veu, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
+
+dt <- dt %>% mutate(El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral = recode(El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
+
+dt <- dt %>% mutate(Not.que.necessit.tensar.la.gola..gargamella..per.produir.la.veu = recode(Not.que.necessit.tensar.la.gola..gargamella..per.produir.la.veu, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
+
+dt <- dt %>% mutate(La.qualitat.de.la.meva.veu.és.imprevisible = recode(La.qualitat.de.la.meva.veu.és.imprevisible, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
+
+dt <- dt %>% mutate(La.meva.veu.em.molesta = recode(La.meva.veu.em.molesta, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
+
+dt <- dt %>% mutate(La.meva.veu.em.fa.sentir.certa.minusvalidesa = recode(La.meva.veu.em.fa.sentir.certa.minusvalidesa, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
+
+dt <- dt %>% mutate(La.gent.em.pregunta..què.et.passa.amb.la.veu. = recode(La.gent.em.pregunta..què.et.passa.amb.la.veu., "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
 ```
 
-
-```{r}
-for (i in llista){dt<-dt%>% mutate(x=recode(x,"Mai"=0,"Gairebé mai"=1,"A vegades"=2,"Gairebé sempre"=3,"Sempre"=4))}
-```
-
-
-```{r}
-llista=c(La.gent.no.m.entén.en.llocs.sorollosos)
+```{r, include=FALSE}
 dt$Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social
 dt$Em.sent.desplaçat.de.les.converses.per.la.meva.veu
 dt$El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral
@@ -49,5 +50,49 @@ dt$La.qualitat.de.la.meva.veu.és.imprevisible
 dt$La.meva.veu.em.molesta
 dt$La.meva.veu.em.fa.sentir.certa.minusvalidesa
 dt$La.gent.em.pregunta..què.et.passa.amb.la.veu.
+dt$La.gent.no.m.entén.en.llocs.sorollosos
 ```
 
+A continuació trobarem una puntuació general de la salud de la veu individual a partir de sumar les puntuacions individuals de cada pregunta de la qualitat, aquest valor anirà de 0 fins a 40.
+
+Encara que no ens ha donat temps a usar el codi, usariom mutate per tal de sumar les columnes amb valoració numèrica.
+
+```{r}
+
+library(tidyverse)
+
+library(ggplot2)
+
+dades = read.csv2("Salut_Vocal_anonimizada.csv")
+
+data = data_frame(dades$Cos.docent, dades$Ha.estat.diagnosticat.per.un.especialista.mèdic..otorinolaringòleg..foniatra..d.alguna.lesió.a.les.cordes.vocals.)
+
+colnames(data)= c("Cos.docent", "Diagnosticat")
+
+mestres = c("Educació Infantil","Educació Primària", "Educació Secundària", "Formació Professional", "Universitat")
+
+data = data[data$Cos.docent %in% mestres ,]
+
+taula = as.data.frame(table(data))
+
+taula
+
+# create a dataset
+
+specie <- c(rep("sorgho" , 3) , rep("poacee" , 3) , rep("banana" , 3) , rep("triticum" , 3) )
+
+condition <- rep(c("No" , "No ho record" , "Si") , 4)
+
+value<- abs(rnorm(12 , 0 , 15))
+
+data <- data.frame(specie,condition,value)
+
+# Grouped
+
+ggplot(taula, aes(fill=Diagnosticat, y=Freq, x=Cos.docent)) +
+
+geom_bar(position="dodge", stat="identity")+
+
+theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
+
+```
