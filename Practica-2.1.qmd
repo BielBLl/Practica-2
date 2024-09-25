@@ -1,5 +1,53 @@
 ---
-title: "Practica 2"
+title: "Pràctica 2"
 format: html
 editor: visual
 ---
+El nostre grup està composat per quatre integrants: Biel Bauzà, Eulàlia Tous, Marc Arrom i Rebeca Payá.
+
+En aquest informe estudiarem els resultats de l'enquesta sobre salut vocal realitzada pels investigadors Daniel Covacho, Esperanza Mulet i Pilar Riera sobre els símptomes vocals al professorat. En particular, nosaltres intentarem veure si hi ha més baixes pel tema vocal al principi de curs, Açò és interessant respondre-ho ja que en cas afirmatiu podria significar la millora de la qualitat en la tècnica emprada pels professors a l'hora de donar les classes.
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+dt<-read.csv2("Salut_Vocal_anonimizada.csv")
+dt.1%>%as_tibble 
+dt<-dt.1
+
+```
+
+
+
+
+```{r}
+f<-function(x,dt)(
+  dt<-dt%>% mutate(x=recode(x,"Mai"=0,"Gairebé mai"=1,"A vegades"=2,"Gairebé sempre"=3,"Sempre"=4))
+)
+```
+
+
+```{r}
+dt<-dt%>% mutate(La.gent.em.sent.amb.dificultat.a.causa.de.la.meva.veu=recode(La.gent.em.sent.amb.dificultat.a.causa.de.la.meva.veu,"Mai"=0,"Gairebé mai"=1,"A vegades"=2,"Gairebé sempre"=3,"Sempre"=4))
+```
+
+
+```{r}
+for (i in llista){dt<-dt%>% mutate(x=recode(x,"Mai"=0,"Gairebé mai"=1,"A vegades"=2,"Gairebé sempre"=3,"Sempre"=4))}
+```
+
+
+```{r}
+llista=c(La.gent.no.m.entén.en.llocs.sorollosos)
+dt$Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social
+dt$Em.sent.desplaçat.de.les.converses.per.la.meva.veu
+dt$El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral
+dt$Not.que.necessit.tensar.la.gola..gargamella..per.produir.la.veu
+dt$La.qualitat.de.la.meva.veu.és.imprevisible
+dt$La.meva.veu.em.molesta
+dt$La.meva.veu.em.fa.sentir.certa.minusvalidesa
+dt$La.gent.em.pregunta..què.et.passa.amb.la.veu.
+```
+
