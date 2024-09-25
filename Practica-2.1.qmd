@@ -3,7 +3,7 @@ title: "Pràctica 2"
 format: html
 editor: visual
 ---
-
+El git és https://github.com/BielBLl/Practica-2
 El nostre grup està composat per quatre integrants: Biel Bauzà, Eulàlia Tous, Marc Arrom i Rebeca Payá.
 
 En aquest informe estudiarem els resultats de l'enquesta sobre salut vocal realitzada pels investigadors Daniel Covacho, Esperanza Mulet i Pilar Riera sobre els símptomes vocals al professorat. En particular, nosaltres intentarem veure
