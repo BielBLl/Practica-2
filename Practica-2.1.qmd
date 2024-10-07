@@ -1,91 +1,171 @@
 ---
-title: "Pràctica 2"
-format: html
-editor: visual
+title: "Síntomas vocales en profesores"
+subtitle: "20582- Análisis de Datos para el GMAT"
+date: today
+format:
+  html:
+    theme: lumen
+    toc: true
+    toc-depth: 3
+Rendering:
+    embed-resources: true
 ---
-El git és https://github.com/BielBLl/Practica-2
-El nostre grup està composat per quatre integrants: Biel Bauzà, Eulàlia Tous, Marc Arrom i Rebeca Payá.
 
-En aquest informe estudiarem els resultats de l'enquesta sobre salut vocal realitzada pels investigadors Daniel Covacho, Esperanza Mulet i Pilar Riera sobre els símptomes vocals al professorat. En particular, nosaltres intentarem veure
-
-```{r, include=FALSE}
+```{r setup, include=FALSE}
+#recordad instalar los paquetes
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(tidyverse)
+library(readr)
+library(ggplot2)
+#library(hrbrthemes) da problemas y no se donde se usa
+library(janitor) # usado para limpiar los datos
+library(viridis)
 ```
 
-```{r, include=FALSE}
-dt<-read.csv2("Salut_Vocal_anonimizada.csv")
-dt.1%>%as_tibble 
-dt<-dt.1
-dt %>% colnames
-```
+## Lectura y limpieza de los datos
 
-```{r, include=FALSE}
-dt<-dt%>% mutate(La.gent.em.sent.amb.dificultat.a.causa.de.la.meva.veu=recode(La.gent.em.sent.amb.dificultat.a.causa.de.la.meva.veu,"Mai"=0,"Gairebé mai"=1,"A vegades"=2,"Gairebé sempre"=3,"Sempre"=4))
-
-dt <- dt %>% mutate(Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social = recode(Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-
-dt <- dt %>% mutate(La.gent.no.m.entén.en.llocs.sorollosos = recode(La.gent.no.m.entén.en.llocs.sorollosos, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-
-dt <- dt %>% mutate(Em.sent.desplaçat.de.les.converses.per.la.meva.veu = recode(Em.sent.desplaçat.de.les.converses.per.la.meva.veu, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-
-dt <- dt %>% mutate(El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral = recode(El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-
-dt <- dt %>% mutate(Not.que.necessit.tensar.la.gola..gargamella..per.produir.la.veu = recode(Not.que.necessit.tensar.la.gola..gargamella..per.produir.la.veu, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-
-dt <- dt %>% mutate(La.qualitat.de.la.meva.veu.és.imprevisible = recode(La.qualitat.de.la.meva.veu.és.imprevisible, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-
-dt <- dt %>% mutate(La.meva.veu.em.molesta = recode(La.meva.veu.em.molesta, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-
-dt <- dt %>% mutate(La.meva.veu.em.fa.sentir.certa.minusvalidesa = recode(La.meva.veu.em.fa.sentir.certa.minusvalidesa, "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-
-dt <- dt %>% mutate(La.gent.em.pregunta..què.et.passa.amb.la.veu. = recode(La.gent.em.pregunta..què.et.passa.amb.la.veu., "Mai" = 0, "Gairebé mai" = 1, "A vegades" = 2, "Gairebé sempre" = 3, "Sempre" = 4))
-```
-
-```{r, include=FALSE}
-dt$Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social
-dt$Em.sent.desplaçat.de.les.converses.per.la.meva.veu
-dt$El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral
-dt$Not.que.necessit.tensar.la.gola..gargamella..per.produir.la.veu
-dt$La.qualitat.de.la.meva.veu.és.imprevisible
-dt$La.meva.veu.em.molesta
-dt$La.meva.veu.em.fa.sentir.certa.minusvalidesa
-dt$La.gent.em.pregunta..què.et.passa.amb.la.veu.
-dt$La.gent.no.m.entén.en.llocs.sorollosos
-```
-
-A continuació trobarem una puntuació general de la salud de la veu individual a partir de sumar les puntuacions individuals de cada pregunta de la qualitat, aquest valor anirà de 0 fins a 40.
-
-Encara que no ens ha donat temps a usar el codi, usariom mutate per tal de sumar les columnes amb valoració numèrica.
+Leemos los datos del fichero "Salut_Vocal_anonimizada.csv" y cambiamos los nombres de las variables.
 
 ```{r}
+#Usamos la limpieza de datos homogenia aportada por Irene
+raw_data<-read.csv("Salut_Vocal_anonimizada.csv",
+                   header=TRUE, sep=";")
 
-library(tidyverse)
+raw_data <- raw_data %>% select(-X) %>% 
+   rename(
+    Importancia_voz = "De.l.1.al.10.quina.importancia.té.la.veu.per.a.vostè.",
+    Sexo = "Sexe",
+    Lugar_trabajo="On.fa.feina.",
+    Cuerpo_docente="Cos.docent",
+    Edad="Quina.edat.té.",
+    Actividas_fisica="Practica.esport.o.fa.alguna.activitat.física.",
+    Importancia_deporte="De.l.1.al.10.quina.importancia.té.la.pràctica.de.l.esport.o.activitat.física.per.a.vostè.",
+    Calidad_sueño="Té.una.bona.qualitat.del.son.",
+    Cafe="Consumeix.cafè.",
+    Tabaco="Consumeix.tabac.",
+    Alcohol="Consumeix.alcohol.",
+    Bebida_gas="Consumeix.begudes.amb.gas.",
+    Dieta_saludable="De..l.1.al.10.assenyali.si.segueix.una.dieta.equilibrada.i.saludable.",
+    Diagnostico="Ha.estat.diagnosticat.per.un.metge.o.metgessa.d.alguna.de.les.malalties.següents.",
+    Patologia="Si.ha.marcat.alguna.de.les.opcions.anterior..especifiqui.la.patologia.",
+    Diagnostico_especialista="Ha.estat.diagnosticat.per.un.especialista.mèdic..otorinolaringòleg..foniatra..d.alguna.lesió.a.les.cordes.vocals.",
+    Sintomas="Aquest.mes.ha.tengut.algún.símptoma.vocal.dels.següents..Es.pot.marcar.més.d.una.opció",
+    Operacion="L.han.operat.de.les.cordes.vocals.",
+    Tiempo_alteracion="Si.té.alguna.alteració.de.la.veu..recorda.quin.temps.fa.que.va.començar.",
+    Baja_voz="En.alguna.ocasió..ha.estat.de.baixa.laboral.per.problemes.de.veu.",
+    Baja_larga="Si.la.resposta.a.la.pregunta.anterior.és.afirmativa..indiqui.la.periodicitat..cada.any..trimestre.....i.la.durada.de.la.baixa.més.llarga.i.la.malaltia",
+    Problema_curso22_23="Ha.tengut.problemes.de.veu.importants.i.que.li.han.dificultat.la.feina.al.llarg.del.curs.2022.2023.",
+    Formacion_voz="Té.formació.sobre.salut.vocal.",
+    Medicacion="Pren.alguna.o.algunes.de.les.medicacions.següents..Es.pot.marcar.més.d.una.opció",
+    Higiene_vocal="Segueix.una.rutina.d.higiene.vocal.",
+    Actividades="Fa.alguna.de.les.activitats.següents..Es.pot.marcar.més.d.una.opció",
+    No_me_ecuchan="La.gent.em.sent.amb.dificultat.a.causa.de.la.meva.veu",
+    No_me_escuchan_ruido="La.gent.no.m.entén.en.llocs.sorollosos",
+    Alteracion_vida_social="Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social",
+    Desplazado_conversacion="Em.sent.desplaçat.de.les.converses.per.la.meva.veu",
+    Rendimiento_laboral="El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral",
+    Tensar_producir_voz="Not.que.necessit.tensar.la.gola..gargamella..per.produir.la.veu",
+    Calidad_imprevisible="La.qualitat.de.la.meva.veu.és.imprevisible",
+    Me_molesta="La.meva.veu.em.molesta",
+    Minusvalia="La.meva.veu.em.fa.sentir.certa.minusvalidesa",
+    Gente_pregunta="La.gent.em.pregunta..què.et.passa.amb.la.veu."
+)
 
-library(ggplot2)
+#glimpse(raw_data) sobra para el informe final pero está aquí por si lo necesitais
+```
+
+Observamos que hay 185 respuestas y 37 variables. Vamos a limpiar los nombres de las variables y a convertir las variables categóricas en factores, a excepción de las variables "importancia_voz", "importancia_deporte" y "dieta_saludable" que las dejamos como variables cuantitativas discretas.
+
+```{r}
+# limpiar algunos datos
+data <- janitor::clean_names(raw_data) %>% 
+        mutate(across(-c(importancia_voz,
+                         importancia_deporte,
+                         dieta_saludable), as.factor))
+
+#glimpse(data) no es necesario para el informe final
+
+```
+
+Ahora, para calcular el índice de calidad de voz (VHI), vamos a seleccionar las variables desde la 28 a la 37 para convertirlas en cuantitativas discretas y a sumarlas para obtener el índice VIH.
+
+```{r}
+# Transforma las últimas preguntas en numérico y posteriormente los suma
+datos<-data %>% select(28:37) %>% 
+  mutate(across(everything(), ~case_when(
+     . == "Mai" ~ 0,
+     . == "Gairebé mai" ~ 1,
+     . == "A vegades" ~ 2,
+     . == "Gairebé sempre" ~ 3,
+     . == "Sempre" ~ 4
+   ))
+   )
+
+datos<-datos %>% mutate(VHI=rowSums(datos))
+
+glimpse(datos) 
+```
+
+Por último, vamos a añadir la variable VHI al dataframe original y a eliminar las variables de la 28 a la 37.
+
+```{r}
+# Aquí habia un typo donde ponia datos$score pero lo habian puesto VHI a la puntuación
+data<-data %>% select(-c(28:37))%>% 
+   bind_cols(VHI=datos$VHI)
+glimpse(data) 
+
+```
+
+El git es [Grupo REBM](https://github.com/BielBLl/Practica-2) . Nuestro grupo está compuesto por cuatro integrantes: Biel Bauzá, Eulàlia Tous, Marc Arrom i Rebeca Payá.
+
+En este informe estudiaremos los resultados de la encuesta sobre salud vocal relizada por los investigadores Daniel Covacho, Esperanza Mulet i Pilar Riera sobre los sintomas vocales del profesorado.
+
+Al tener ya los datos limpios y homogeneizados podemos pasar a la pregunta particular que ha tocado a nuestro grupo, la pregunta 2 "¿Hay mayor incidencia de síntomas vocales en maestras de infantil?"
+
+```{r}
+sub_data=data.frame(data$cuerpo_docente,data$diagnostico_especialista)
+profesiones=unique(sub_data$data.cuerpo_docente)
+length(profesiones)
+# como dice Irene aquí hay demasiadas profesiones, intentemos agruparlas
+```
+Podemos ver como en total hay 20 "profesiones" lo qual no ayudará para representar-lo gráficamente, agrupemos algunas profesiones.
+
+```{r}
+profesiones
+```
+Podriamos seprarlo en Infantil, Primaria, Secundaria/Bachiller, Universidad, Formación Professional, Música/Artes Escénicas y Regimen Especial. Para hacerlo usaremos mutate
+
+```{r}
+sub_data_limpia<-sub_data %>% 
+  mutate(across(everything(),~case_when(
+     . == "Formació Professional"~ "Formación Profesional",
+     . %in% c("Secundaria i Batxillerat","Educació Secundària") ~ "Secundaria/Bachiller",
+     . == "Educació Infantil"~"Infantil",
+     . == "Universitat"~"Universidad",
+     . %in% c("Professor de saxòfon en el Conservatori Professional de Música ","Música i arts escèniques","conservatori","Arts escèniques (Conservatorio, dansa)","Conservatori","Música i Arts escèniques. Dansa Clàssica.","Música i arts escèniques ","Conservatori professional ","Música i Arts Escèniques ")~"Música/Artes Escénicas",
+     . %in% c("Règim Especial","Règim Especial (Secundària)","UEECO ")~"Regimen Especial",
+     . %in% c("Educació Primària","Ed Primària, PT ( Pedagogia Terapèutica) .faig feina a Institut")~"Primaria",
+     TRUE~.
+   )))
+unique(sub_data_limpia$data.cuerpo_docente)
+```
+Ahora solo tenemos las 7 categorias de profesores agrupadas, podemos hacer un gráfico para ver las distribuciones
+
+
 
 dades = read.csv2("Salut_Vocal_anonimizada.csv")
 
-data = data_frame(dades$Cos.docent, dades$Ha.estat.diagnosticat.per.un.especialista.mèdic..otorinolaringòleg..foniatra..d.alguna.lesió.a.les.cordes.vocals.)
+datas = data_frame(dades$Cos.docent, dades$Ha.estat.diagnosticat.per.un.especialista.mèdic..otorinolaringòleg..foniatra..d.alguna.lesió.a.les.cordes.vocals.)
 
-colnames(data)= c("Cos.docent", "Diagnosticat")
+colnames(datas)= c("Cos.docent", "Diagnosticat")
 
 mestres = c("Educació Infantil","Educació Primària", "Educació Secundària", "Formació Professional", "Universitat")
 
-data = data[data$Cos.docent %in% mestres ,]
+datas = datas[datas$Cos.docent %in% mestres ,]
 
-taula = as.data.frame(table(data))
+as.data.frame(table(datas))
 
-taula
 
-# create a dataset
-
-specie <- c(rep("sorgho" , 3) , rep("poacee" , 3) , rep("banana" , 3) , rep("triticum" , 3) )
-
-condition <- rep(c("No" , "No ho record" , "Si") , 4)
-
-value<- abs(rnorm(12 , 0 , 15))
-
-data <- data.frame(specie,condition,value)
 
 # Grouped
 
@@ -95,4 +175,3 @@ geom_bar(position="dodge", stat="identity")+
 
 theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
 
-```
