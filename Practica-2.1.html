@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-10-07">
+<meta name="dcterms.date" content="2024-10-08">
 
 <title>Síntomas vocales en profesores</title>
 <style>
@@ -69,6 +69,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="Practica-2.1_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="Practica-2.1_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -100,7 +129,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 7, 2024</p>
+      <p class="date">October 8, 2024</p>
     </div>
   </div>
   
@@ -243,71 +272,84 @@ $ actividades              &lt;fct&gt; "No faig cap activitat amb exigència voc
 $ VHI                      &lt;dbl&gt; 0, 8, 6, 8, 27, 15, 14, 4, 10, 7, 1, 2, 8, 6,…</code></pre>
 </div>
 </div>
-<p>El git és [Grupo REBM](https://github.com/BielBLl/Practica-2). El nostre grup està composat per quatre integrants: Biel Bauzà, Eulàlia Tous, Marc Arrom i Rebeca Payá.</p>
-<p>En aquest informe estudiarem els resultats de l’enquesta sobre salut vocal realitzada pels investigadors Daniel Covacho, Esperanza Mulet i Pilar Riera sobre els símptomes vocals al professorat. En particular, nosaltres intentarem veure</p>
-<p>A continuació trobarem una puntuació general de la salud de la veu individual a partir de sumar les puntuacions individuals de cada pregunta de la qualitat, aquest valor anirà de 0 fins a 40.</p>
-<p>Encara que no ens ha donat temps a usar el codi, usariom mutate per tal de sumar les columnes amb valoració numèrica.</p>
+<p>El git es <a href="https://github.com/BielBLl/Practica-2">Grupo REBM</a> . Nuestro grupo está compuesto por cuatro integrantes: Biel Bauzá, Eulàlia Tous, Marc Arrom i Rebeca Payá.</p>
+<p>En este informe estudiaremos los resultados de la encuesta sobre salud vocal relizada por los investigadores Daniel Covacho, Esperanza Mulet i Pilar Riera sobre los sintomas vocales del profesorado.</p>
+<p>Al tener ya los datos limpios y homogeneizados podemos pasar a la pregunta particular que ha tocado a nuestro grupo, la pregunta 2 “¿Hay mayor incidencia de síntomas vocales en maestras de infantil?”</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>dades <span class="ot">=</span> <span class="fu">read.csv2</span>(<span class="st">"Salut_Vocal_anonimizada.csv"</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">data_frame</span>(dades<span class="sc">$</span>Cos.docent, dades<span class="sc">$</span>Ha.estat.diagnosticat.per.un.especialista.mèdic..otorinolaringòleg..foniatra..d.alguna.lesió.a.les.cordes.vocals.)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data)<span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Cos.docent"</span>, <span class="st">"Diagnosticat"</span>)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>mestres <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Educació Infantil"</span>,<span class="st">"Educació Primària"</span>, <span class="st">"Educació Secundària"</span>, <span class="st">"Formació Professional"</span>, <span class="st">"Universitat"</span>)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> data[data<span class="sc">$</span>Cos.docent <span class="sc">%in%</span> mestres ,]</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>taula <span class="ot">=</span> <span class="fu">as.data.frame</span>(<span class="fu">table</span>(data))</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>taula</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sub_data<span class="ot">=</span><span class="fu">data.frame</span>(data<span class="sc">$</span>cuerpo_docente,data<span class="sc">$</span>diagnostico_especialista)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>profesiones<span class="ot">=</span><span class="fu">unique</span>(sub_data<span class="sc">$</span>data.cuerpo_docente)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(profesiones)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>              Cos.docent Diagnosticat Freq
-1      Educació Infantil           No    8
-2      Educació Primària           No   24
-3    Educació Secundària           No   72
-4  Formació Professional           No   25
-5            Universitat           No    3
-6      Educació Infantil No ho record    1
-7      Educació Primària No ho record    0
-8    Educació Secundària No ho record    2
-9  Formació Professional No ho record    1
-10           Universitat No ho record    0
-11     Educació Infantil           Si    3
-12     Educació Primària           Si    4
-13   Educació Secundària           Si   19
-14 Formació Professional           Si    0
-15           Universitat           Si    0</code></pre>
+<pre><code>[1] 20</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a dataset</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>specie <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"sorgho"</span> , <span class="dv">3</span>) , <span class="fu">rep</span>(<span class="st">"poacee"</span> , <span class="dv">3</span>) , <span class="fu">rep</span>(<span class="st">"banana"</span> , <span class="dv">3</span>) , <span class="fu">rep</span>(<span class="st">"triticum"</span> , <span class="dv">3</span>) )</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>condition <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"No"</span> , <span class="st">"No ho record"</span> , <span class="st">"Si"</span>) , <span class="dv">4</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>value<span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">rnorm</span>(<span class="dv">12</span> , <span class="dv">0</span> , <span class="dv">15</span>))</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(specie,condition,value)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Grouped</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(taula, <span class="fu">aes</span>(<span class="at">fill=</span>Diagnosticat, <span class="at">y=</span>Freq, <span class="at">x=</span>Cos.docent)) <span class="sc">+</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"dodge"</span>, <span class="at">stat=</span><span class="st">"identity"</span>)<span class="sc">+</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># como dice Irene aquí hay demasiadas profesiones, intentemos agruparlas</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Podemos ver como en total hay 20 “profesiones” lo qual no ayudará para representar-lo gráficamente, agrupemos algunas profesiones.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>profesiones</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] Formació Professional                                          
+ [2] Educació Secundària                                            
+ [3] Secundaria i Batxillerat                                       
+ [4] Música i arts escèniques                                       
+ [5] Professor de saxòfon en el Conservatori Professional de Música 
+ [6] Conservatori professional                                      
+ [7] Música i arts escèniques                                       
+ [8] Educació Primària                                              
+ [9] conservatori                                                   
+[10] Règim Especial                                                 
+[11] Educació Infantil                                              
+[12] UEECO                                                          
+[13] Arts escèniques (Conservatorio, dansa)                         
+[14] Música i Arts Escèniques                                       
+[15] Conservatori                                                   
+[16] Règim Especial (Secundària)                                    
+[17] Música i Arts escèniques. Dansa Clàssica.                      
+[18] Universidad                                                    
+[19] Universitat                                                    
+[20] Ed Primària, PT ( Pedagogia Terapèutica) .faig feina a Institut
+20 Levels: Arts escèniques (Conservatorio, dansa) conservatori ... Universitat</code></pre>
+</div>
+</div>
+<p>Podriamos seprarlo en Infantil, Primaria, Secundaria/Bachiller, Universidad, Formación Professional, Música/Artes Escénicas y Regimen Especial. Para hacerlo usaremos mutate</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>sub_data_limpia<span class="ot">&lt;-</span>sub_data <span class="sc">%&gt;%</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(),<span class="sc">~</span><span class="fu">case_when</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>     . <span class="sc">==</span> <span class="st">"Formació Professional"</span><span class="sc">~</span> <span class="st">"5.Formación Profesional"</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>     . <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Secundaria i Batxillerat"</span>,<span class="st">"Educació Secundària"</span>) <span class="sc">~</span> <span class="st">"3.Secundaria/Bachiller"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>     . <span class="sc">==</span> <span class="st">"Educació Infantil"</span><span class="sc">~</span><span class="st">"1.Infantil"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>     . <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Universitat"</span>,<span class="st">"Universidad"</span>)<span class="sc">~</span><span class="st">"4.Universidad"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>     . <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Professor de saxòfon en el Conservatori Professional de Música "</span>,<span class="st">"Música i arts escèniques"</span>,<span class="st">"conservatori"</span>,<span class="st">"Arts escèniques (Conservatorio, dansa)"</span>,<span class="st">"Conservatori"</span>,<span class="st">"Música i Arts escèniques. Dansa Clàssica."</span>,<span class="st">"Música i arts escèniques "</span>,<span class="st">"Conservatori professional "</span>,<span class="st">"Música i Arts Escèniques "</span>)<span class="sc">~</span><span class="st">"7.Música/Artes Escénicas"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>     . <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Règim Especial"</span>,<span class="st">"Règim Especial (Secundària)"</span>,<span class="st">"UEECO "</span>)<span class="sc">~</span><span class="st">"6.Regimen Especial"</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>     . <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Educació Primària"</span>,<span class="st">"Ed Primària, PT ( Pedagogia Terapèutica) .faig feina a Institut"</span>)<span class="sc">~</span><span class="st">"2.Primaria"</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>     <span class="cn">TRUE</span><span class="sc">~</span>.</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>   )))</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(sub_data_limpia)<span class="ot">=</span><span class="fu">c</span>(<span class="st">"cuerpo_docente"</span>,<span class="st">"diagnostico_especialista"</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(sub_data_limpia<span class="sc">$</span>cuerpo_docente)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "5.Formación Profesional"  "3.Secundaria/Bachiller"  
+[3] "7.Música/Artes Escénicas" "2.Primaria"              
+[5] "6.Regimen Especial"       "1.Infantil"              
+[7] "4.Universidad"           </code></pre>
+</div>
+</div>
+<p>Ahora solo tenemos las 7 categorias de profesores agrupadas, podemos hacer un gráfico para ver las distribuciones</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>taula<span class="ot">=</span><span class="fu">table</span>(sub_data_limpia)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>taula<span class="ot">=</span><span class="fu">as.data.frame</span>(taula)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(taula,<span class="fu">aes</span>(<span class="at">fill =</span>diagnostico_especialista,<span class="at">y=</span>Freq,<span class="at">x =</span> cuerpo_docente))<span class="sc">+</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>,<span class="at">position =</span> <span class="st">"dodge"</span>,<span class="at">width =</span> <span class="fl">0.8</span>)<span class="sc">+</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Practica-2.1_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Practica-2.1_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
+<p>##Comentari Aquí faltaria comentar el que podria significar, si volem fer alguna inferència hem de comparar <span class="math inline">\(p_i\)</span> on cada un d’aquests valors seria la porbabilitat de tenir un problema, crec que podem argumentar que amb la poca quantitat de gent no es pot fer cap inferència de pes</p>
 </section>
 
 </main>
