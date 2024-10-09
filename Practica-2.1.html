@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-10-08">
+<meta name="dcterms.date" content="2024-10-09">
 
 <title>Síntomas vocales en profesores</title>
 <style>
@@ -129,7 +129,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 8, 2024</p>
+      <p class="date">October 9, 2024</p>
     </div>
   </div>
   
@@ -335,18 +335,63 @@ $ VHI                      &lt;dbl&gt; 0, 8, 6, 8, 27, 15, 14, 4, 10, 7, 1, 2, 8
 </div>
 </div>
 <p>Ahora solo tenemos las 7 categorias de profesores agrupadas, podemos hacer un gráfico para ver las distribuciones</p>
+<p>Cambiar los nombres en el diagrama de barras</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>taula<span class="ot">=</span><span class="fu">table</span>(sub_data_limpia)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>taula<span class="ot">=</span><span class="fu">as.data.frame</span>(taula)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(taula,<span class="fu">aes</span>(<span class="at">fill =</span>diagnostico_especialista,<span class="at">y=</span>Freq,<span class="at">x =</span> cuerpo_docente))<span class="sc">+</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>,<span class="at">position =</span> <span class="st">"dodge"</span>,<span class="at">width =</span> <span class="fl">0.8</span>)<span class="sc">+</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>taula <span class="ot">=</span> <span class="fu">table</span>(sub_data_limpia)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>taula <span class="ot">=</span> <span class="fu">as.data.frame</span>(taula)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reordenar la variable 'cuerpo_docente' en el orden deseado</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>taula<span class="sc">$</span>cuerpo_docente <span class="ot">&lt;-</span> <span class="fu">factor</span>(taula<span class="sc">$</span>cuerpo_docente, </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                               <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Infantil"</span>, <span class="st">"Primaria"</span>, <span class="st">"Secundaria/Bachiller"</span>, <span class="st">"Universidad"</span>, <span class="st">"Formación Profesional"</span>, <span class="st">"Regimen Especial"</span>, <span class="st">"Música/Artes Escénicas"</span>)) <span class="co"># Cambia el orden a tu preferencia</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(taula, <span class="fu">aes</span>(<span class="at">fill =</span> diagnostico_especialista, <span class="at">y =</span> Freq, <span class="at">x =</span> cuerpo_docente)) <span class="sc">+</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"dodge"</span>, <span class="at">width =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))<span class="sc">+</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Cuerpo docente"</span>) <span class="sc">+</span>           <span class="co"># Cambia el nombre del eje X</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Frecuencias"</span>) <span class="sc">+</span>           <span class="co"># Cambia el nombre del eje Y</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Leyenda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
 <p><img src="Practica-2.1_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
+</div>
+</div>
+<p>Añadir tabla de proporciones</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>proporciones_problemas <span class="ot">&lt;-</span> sub_data_limpia <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cuerpo_docente) <span class="sc">%&gt;%</span> <span class="co"># Agrupar por factores</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_docentes =</span> <span class="fu">n</span>(), </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">problemas_si =</span> <span class="fu">sum</span>(diagnostico_especialista <span class="sc">==</span> <span class="st">"Si"</span>),  <span class="co"># Cantidad que respondió "sí"</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">probelmas_ns =</span> <span class="fu">sum</span>(diagnostico_especialista <span class="sc">==</span> <span class="st">"No ho record"</span>), <span class="co"># Cantidad que respondió "No ho record"</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">problemas_no =</span> <span class="fu">sum</span>(diagnostico_especialista <span class="sc">==</span> <span class="st">"No"</span>),  <span class="co"># Cantidad que respondió "no"</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_si =</span> <span class="fu">round</span>(problemas_si <span class="sc">/</span> total_docentes, <span class="dv">3</span>),  <span class="co"># Proporción de "sí"</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_no =</span> <span class="fu">round</span>(problemas_no <span class="sc">/</span> total_docentes, <span class="dv">3</span>) <span class="co"># Proporción de "no"</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(proporciones_problemas) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"CuerpoDocente"</span>, <span class="st">"Total"</span>, <span class="st">"Problemas: Si"</span>, <span class="st">"Problemas: NS"</span>, <span class="st">"Problemas: No"</span>, <span class="st">"Proporcion: Si"</span>, <span class="st">"Proporcion: No"</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>proporciones_problemas<span class="sc">$</span>CuerpoDocente <span class="ot">&lt;-</span> <span class="fu">factor</span>(proporciones_problemas<span class="sc">$</span>CuerpoDocente, </span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Infantil"</span>, <span class="st">"Primaria"</span>, <span class="st">"Secundaria/Bachiller"</span>, <span class="st">"Universidad"</span>, <span class="st">"Formación Profesional"</span>, <span class="st">"Regimen Especial"</span>, <span class="st">"Música/Artes Escénicas"</span>))</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>proporciones_problemas <span class="ot">&lt;-</span> proporciones_problemas <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(CuerpoDocente)</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar las proporciones</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>proporciones_problemas</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 7
+  CuerpoDocente Total `Problemas: Si` `Problemas: NS` `Problemas: No`
+  &lt;fct&gt;         &lt;int&gt;           &lt;int&gt;           &lt;int&gt;           &lt;int&gt;
+1 &lt;NA&gt;             12               3               1               8
+2 &lt;NA&gt;             29               5               0              24
+3 &lt;NA&gt;             94              20               2              72
+4 &lt;NA&gt;             11               2               0               9
+5 &lt;NA&gt;             26               0               1              25
+6 &lt;NA&gt;              3               1               0               2
+7 &lt;NA&gt;             10               2               0               8
+# ℹ 2 more variables: `Proporcion: Si` &lt;dbl&gt;, `Proporcion: No` &lt;dbl&gt;</code></pre>
 </div>
 </div>
 <p>##Comentari Aquí faltaria comentar el que podria significar, si volem fer alguna inferència hem de comparar <span class="math inline">\(p_i\)</span> on cada un d’aquests valors seria la porbabilitat de tenir un problema, crec que podem argumentar que amb la poca quantitat de gent no es pot fer cap inferència de pes</p>
