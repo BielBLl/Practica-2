@@ -163,24 +163,6 @@ ggplot(taula,aes(fill =diagnostico_especialista,y=Freq,x = cuerpo_docente))+
 
 Cambiar los nombres en el diagrama de barras
 
-```{r}
-taula = table(sub_data_limpia)
-taula = as.data.frame(taula)
-
-# Reordenar la variable 'cuerpo_docente' en el orden deseado
-taula$cuerpo_docente <- factor(taula$cuerpo_docente, 
-                               levels = c("Infantil", "Primaria", "Secundaria/Bachiller", "Universidad", "Formación Profesional", "Regimen Especial", "Música/Artes Escénicas")) # Cambia el orden a tu preferencia
-
-ggplot(taula, aes(fill = diagnostico_especialista, y = Freq, x = cuerpo_docente)) +
-  geom_bar(stat = "identity", position = "dodge", width = 0.8) +
-  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 0.5))+
-  xlab("Cuerpo docente") +           # Cambia el nombre del eje X
-  ylab("Frecuencias") +           # Cambia el nombre del eje Y
-  labs(fill = "Leyenda")
-```
-
-
-
 Añadir tabla de proporciones
 ```{r}
 
