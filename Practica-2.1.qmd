@@ -34,7 +34,7 @@ Por otro lado, también debemos calcular el índice de calidad de voz (VHI). Par
 
 Primeramente, leeremos los datos del fichero "Salut_Vocal_anonimizada.csv" y cambiaremos los nombres de las variables a unas que nos resulten más cómodas para trabajar con ellas.
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 #Usamos la limpieza de datos homogenia aportada por Irene
 raw_data<-read.csv("Salut_Vocal_anonimizada.csv",
                    header=TRUE, sep=";")
@@ -79,25 +79,25 @@ raw_data <- raw_data %>% select(-X) %>%
     Gente_pregunta="La.gent.em.pregunta..què.et.passa.amb.la.veu."
 )
 
-#glimpse(raw_data) sobra para el informe final pero está aquí por si lo necesitais
+glimpse(raw_data) #sobra para el informe final pero está aquí por si lo necesitais
 ```
 
 Podemos observar que hay 185 respuestas y 37 variables. Vamos a limpiar los nombres de las variables y a convertir las variables categóricas en factores, a excepción de las variables "importancia_voz", "importancia_deporte" y "dieta_saludable" que las dejamos como variables cuantitativas discretas.
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 # limpiar algunos datos
 data <- janitor::clean_names(raw_data) %>% 
         mutate(across(-c(importancia_voz,
                          importancia_deporte,
                          dieta_saludable), as.factor))
 
-#glimpse(data) no es necesario para el informe final
+glimpse(data) #no es necesario para el informe final
 
 ```
 
 A continuación, calcularemos el índice de calidad de voz (VHI) como hemos mencionado anteriormente, sumando todos los valores de las columnas seleccionadas como indicadores del susodicho, estas son desde la 28 hasta la 37. Primero deberemos convertirlas en variables cuantitativas discretas.
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 # Transforma las últimas preguntas en numérico y posteriormente los suma
 datos<-data %>% select(28:37) %>% 
   mutate(across(everything(), ~case_when(
@@ -116,7 +116,7 @@ glimpse(datos)
 
 Por último, vamos a añadir la variable VHI al dataframe original y a eliminar las variables de la 28 a la 37.
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 # Aquí habia un typo donde ponia datos$score pero lo habian puesto VHI a la puntuación
 data<-data %>% select(-c(28:37))%>% 
    bind_cols(VHI=datos$VHI)
@@ -125,10 +125,12 @@ glimpse(data)
 
 ## ¿Hay mayor incidencia de síntomas vocales en maestras de infantil?
 
-Al tener ya los datos limpios y homogeneizados podemos pasar a la pregunta particular que le ha tocado a nuestro grupo, la pregunta 2, la cual es enunciada en el título.
+Al tener ya los datos limpios y homogeneizados podemos pasar a la pregunta particular que le ha tocado a nuestro grupo, la pregunta 2, "¿Hay mayor incidencia de síntomas vocales en maestras de infantil?".
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
+#nuevo dataset con una columna que nos indica el cuerpo docente y otra con el diagnostico
 sub_data=data.frame(data$cuerpo_docente,data$diagnostico_especialista)
+#miramos cuantos valores unicos hay en la columna de cuerpo docente
 profesiones=unique(sub_data$data.cuerpo_docente)
 length(profesiones)
 # como dice Irene aquí hay demasiadas profesiones, intentemos agruparlas
@@ -136,27 +138,28 @@ length(profesiones)
 
 Podemos ver como en total hay 20 "profesiones" lo qual no ayudará para representarlo gráficamente, agrupemos algunas profesiones.
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 profesiones
 ```
 
 Podríamos seprarlo en Infantil, Primaria, Secundaria/Bachiller, Universidad, Formación Professional, Música/Artes Escénicas y Régimen Especial. Para hacerlo usaremos mutate.
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 sub_data_limpia<-sub_data %>% 
   mutate(across(everything(),~case_when(
-     . == "Formació Professional"~ "5.Formación Profesional",
-     . %in% c("Secundaria i Batxillerat","Educació Secundària") ~ "3.Secundaria/Bachiller",
-     . == "Educació Infantil"~"1.Infantil",
-     . %in% c("Universitat","Universidad")~"4.Universidad",
-     . %in% c("Professor de saxòfon en el Conservatori Professional de Música ","Música i arts escèniques","conservatori","Arts escèniques (Conservatorio, dansa)","Conservatori","Música i Arts escèniques. Dansa Clàssica.","Música i arts escèniques ","Conservatori professional ","Música i Arts Escèniques ")~"7.Música/Artes Escénicas",
-     . %in% c("Règim Especial","Règim Especial (Secundària)","UEECO ")~"6.Regimen Especial",
-     . %in% c("Educació Primària","Ed Primària, PT ( Pedagogia Terapèutica) .faig feina a Institut")~"2.Primaria",
+     . == "Formació Professional"~ "Formación Profesional",
+     . %in% c("Secundaria i Batxillerat","Educació Secundària") ~ "Secundaria/Bachiller",
+     . == "Educació Infantil"~"Infantil",
+     . %in% c("Universitat","Universidad")~"Universidad",
+     . %in% c("Professor de saxòfon en el Conservatori Professional de Música ","Música i arts escèniques","conservatori","Arts escèniques (Conservatorio, dansa)","Conservatori","Música i Arts escèniques. Dansa Clàssica.","Música i arts escèniques ","Conservatori professional ","Música i Arts Escèniques ")~"Música/Artes Escénicas",
+     . %in% c("Règim Especial","Règim Especial (Secundària)","UEECO ")~"Regimen Especial",
+     . %in% c("Educació Primària","Ed Primària, PT ( Pedagogia Terapèutica) .faig feina a Institut")~"Primaria",
      TRUE~.
    )))
 
 colnames(sub_data_limpia)=c("cuerpo_docente","diagnostico_especialista")
 unique(sub_data_limpia$cuerpo_docente)
+glimpse(sub_data_limpia)
 ```
 
 Ahora solo tenemos las 7 categorías de profesores agrupadas, podemos hacer un gráfico para ver las distribuciones según si algun médico especialista le ha diagnosticado alguna lesión a las cuerdas vocales:
@@ -172,35 +175,41 @@ ggplot(taula, aes(fill = diagnostico_especialista, y = Freq, x = cuerpo_docente)
     x = "Cuerpos docentes",
     y = "Frecuencia",
     fill = "Diagnósticados por especialista\nen lesiones en las cuerdas vocales"
-  )
+  )+
+  scale_fill_manual(values = c("No" = "#FF83FA", "No ho record" = "#C1FFC1", "Si" = "#3357FF"))+
+  ggtitle("Distribución de Diagnósticos por Cuerpos Docentes")
 ```
 
-Añadir tabla de proporciones
+Ahora, añadiremos una tabla de proporciones que nos indica la proporción de Si, No, No ho record de cada cuerpo docente.
 
 ```{r}
-
-proporciones_problemas <- sub_data_limpia %>%
-  group_by(cuerpo_docente) %>% # Agrupar por factores
+# Crear la tabla con el conteo de problemas
+numero_problemas <- sub_data_limpia %>%
+  group_by(cuerpo_docente) %>%
   summarise(
     total_docentes = n(), 
-    problemas_si = sum(diagnostico_especialista == "Si"),  # Cantidad que respondió "sí"
-    probelmas_ns = sum(diagnostico_especialista == "No ho record"), # Cantidad que respondió "No ho record"
-    problemas_no = sum(diagnostico_especialista == "No"),  # Cantidad que respondió "no"
-    prop_si = round(problemas_si / total_docentes, 3),  # Proporción de "sí"
-    prop_no = round(problemas_no / total_docentes, 3) # Proporción de "no"
+    problemas_si = sum(diagnostico_especialista == "Si", na.rm = TRUE),  # Cantidad que respondió "sí"
+    problemas_ns = sum(diagnostico_especialista == "No ho record", na.rm = TRUE),  # Cantidad que respondió "No ho record"
+    problemas_no = sum(diagnostico_especialista == "No", na.rm = TRUE)   # Cantidad que respondió "no"
   )
 
-names(proporciones_problemas) <- c("CuerpoDocente", "Total", "Problemas: Si", "Problemas: NS", "Problemas: No", "Proporcion:Si", "Proporcion:No")
+# Crear una nueva tabla con las proporciones
+proporciones_problemas <- numero_problemas %>%
+  mutate(
+    prop_si = round(problemas_si / total_docentes, 3),
+    prop_ns = round(problemas_ns / total_docentes, 3),
+    prop_no = round(problemas_no / total_docentes, 3)
+  )
+proporciones_problemas <- proporciones_problemas %>%
+  select(cuerpo_docente, prop_si, prop_ns, prop_no)
 
-proporciones_problemas$CuerpoDocente <- factor(proporciones_problemas$CuerpoDocente, 
-    levels = c("1.Infantil", "2.Primaria", "3.Secundaria/Bachiller", "4.Universidad", "5.Formación Profesional", "6.Regimen Especial", "7.Música/Artes Escénicas"))
+names(proporciones_problemas) <- c("CuerpoDocente","Proporcion:Si", "Proprcion: No ho record", "Proporcion:No")
 
-proporciones_problemas <- proporciones_problemas %>% arrange(CuerpoDocente)
-proporciones_problemas_seleccionado <- proporciones_problemas %>%
-  select("CuerpoDocente","Proporcion:Si", "Proporcion:No")
-# Mostrar las proporciones
-proporciones_problemas_seleccionado
+proporciones_problemas
+
 ```
+
+
 
 ##Comentari Aquí faltaria comentar el que podria significar, si volem fer alguna inferència hem de comparar $p_i$ on cada un d'aquests valors seria la porbabilitat de tenir un problema, crec que podem argumentar que amb la poca quantitat de gent no es pot fer cap inferència de pes
 
