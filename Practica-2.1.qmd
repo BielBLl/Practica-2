@@ -190,15 +190,36 @@ proporciones_problemas <- sub_data_limpia %>%
     prop_no = round(problemas_no / total_docentes, 3) # Proporción de "no"
   )
 
-names(proporciones_problemas) <- c("CuerpoDocente", "Total", "Problemas: Si", "Problemas: NS", "Problemas: No", "Proporcion: Si", "Proporcion: No")
+names(proporciones_problemas) <- c("CuerpoDocente", "Total", "Problemas: Si", "Problemas: NS", "Problemas: No", "Proporcion:Si", "Proporcion:No")
 
 proporciones_problemas$CuerpoDocente <- factor(proporciones_problemas$CuerpoDocente, 
-    levels = c("Infantil", "Primaria", "Secundaria/Bachiller", "Universidad", "Formación Profesional", "Regimen Especial", "Música/Artes Escénicas"))
+    levels = c("1.Infantil", "2.Primaria", "3.Secundaria/Bachiller", "4.Universidad", "5.Formación Profesional", "6.Regimen Especial", "7.Música/Artes Escénicas"))
 
 proporciones_problemas <- proporciones_problemas %>% arrange(CuerpoDocente)
-
+proporciones_problemas_seleccionado <- proporciones_problemas %>%
+  select("CuerpoDocente","Proporcion:Si", "Proporcion:No")
 # Mostrar las proporciones
-proporciones_problemas
+proporciones_problemas_seleccionado
 ```
 
 ##Comentari Aquí faltaria comentar el que podria significar, si volem fer alguna inferència hem de comparar $p_i$ on cada un d'aquests valors seria la porbabilitat de tenir un problema, crec que podem argumentar que amb la poca quantitat de gent no es pot fer cap inferència de pes
+
+Una vez visualizados los datos, vamos a realizar un test para analizar si realmente los maestro de infantil tienen una mayor tendencia a tener problemas en la voz. 
+Entonces, el contraste a realizar seria el siguiente:
+
+$$ \begin{cases} H_0: p_{infantil} = p_{otros} \\ H_1: p_{infantil}> p_{otros} \end{cases} $$
+Para ello, realizaremos el test exacto de Fisher, el cual solo necesitamos que la muestra sea independiente para aplicarlo.
+
+```{r}
+# Crear la tabla de contingencia
+tabla <- matrix(c(3, 30, 9, 143), nrow = 2)
+
+# Realizar el test de Fisher
+resultado_fisher <- fisher.test(tabla, alternative = "greater")
+
+# Ver el resultado
+print(resultado_fisher)
+```
+Observamos un p-valor de 0.364, lo cual es mayor al nivel de significancia, 0.05. Esto nos indica que no hay indicios suficientes para rechazar la hipotesis nula, es decir, de que la proporcion de maestros de infantil con problemas vocales sea mayor a la de los otros docentes.
+
+
