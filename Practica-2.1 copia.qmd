@@ -1,0 +1,258 @@
+---
+title: "Síntomas vocales en profesores"
+subtitle: "20582- Análisis de Datos para el GMAT"
+date: today
+format:
+  html:
+    theme: lumen
+    toc: true
+    toc-depth: 3
+Rendering:
+    embed-resources: true
+---
+
+```{r setup, include=FALSE}
+#recordad instalar los paquetes
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+#library(hrbrthemes) da problemas y no se donde se usa
+library(janitor) # usado para limpiar los datos
+library(viridis)
+library(gt) # l'heu d'instalar
+```
+
+## Presentación del informe
+
+El git es [Grupo REBM](https://github.com/BielBLl/Practica-2) . Nuestro grupo está compuesto por cuatro integrantes: Biel Bauzá, Eulàlia Tous, Marc Arrom i Rebeca Payá.
+
+En este informe estudiaremos los resultados de la encuesta sobre salud vocal relizada por los investigadores Daniel Covacho, Esperanza Mulet i Pilar Riera sobre los síntomas vocales del profesorado. Nosotros nos dedicaremos a responder la pregunta dos: "¿Hay mayor incidencia de síntomas vocales en maestras de infantil?". Para ello reestructuaremos los datos de manera que nos sea más fàcil trabajar con ellos.
+
+Por otro lado, también debemos calcular el índice de calidad de voz (VHI). Para ello, vamos a seleccionar las variables desde la 28 a la 37, las cuales son las que utilizaremos para cuantificar nuestro índice de calidad de voz, para convertirlas en cuantitativas discretas y a sumarlas para obtener el índice VHI.
+
+## Lectura y limpieza de los datos
+
+Primeramente, leeremos los datos del fichero "Salut_Vocal_anonimizada.csv" y cambiaremos los nombres de las variables a unas que nos resulten más cómodas para trabajar con ellas.
+
+```{r, include=FALSE}
+#Usamos la limpieza de datos homogenia aportada por Irene
+raw_data<-read.csv("Salut_Vocal_anonimizada.csv",
+                   header=TRUE, sep=";")
+
+raw_data <- raw_data %>% select(-X) %>% 
+   rename(
+    Importancia_voz = "De.l.1.al.10.quina.importancia.té.la.veu.per.a.vostè.",
+    Sexo = "Sexe",
+    Lugar_trabajo="On.fa.feina.",
+    Cuerpo_docente="Cos.docent",
+    Edad="Quina.edat.té.",
+    Actividas_fisica="Practica.esport.o.fa.alguna.activitat.física.",
+    Importancia_deporte="De.l.1.al.10.quina.importancia.té.la.pràctica.de.l.esport.o.activitat.física.per.a.vostè.",
+    Calidad_sueño="Té.una.bona.qualitat.del.son.",
+    Cafe="Consumeix.cafè.",
+    Tabaco="Consumeix.tabac.",
+    Alcohol="Consumeix.alcohol.",
+    Bebida_gas="Consumeix.begudes.amb.gas.",
+    Dieta_saludable="De..l.1.al.10.assenyali.si.segueix.una.dieta.equilibrada.i.saludable.",
+    Diagnostico="Ha.estat.diagnosticat.per.un.metge.o.metgessa.d.alguna.de.les.malalties.següents.",
+    Patologia="Si.ha.marcat.alguna.de.les.opcions.anterior..especifiqui.la.patologia.",
+    Diagnostico_especialista="Ha.estat.diagnosticat.per.un.especialista.mèdic..otorinolaringòleg..foniatra..d.alguna.lesió.a.les.cordes.vocals.",
+    Sintomas="Aquest.mes.ha.tengut.algún.símptoma.vocal.dels.següents..Es.pot.marcar.més.d.una.opció",
+    Operacion="L.han.operat.de.les.cordes.vocals.",
+    Tiempo_alteracion="Si.té.alguna.alteració.de.la.veu..recorda.quin.temps.fa.que.va.començar.",
+    Baja_voz="En.alguna.ocasió..ha.estat.de.baixa.laboral.per.problemes.de.veu.",
+    Baja_larga="Si.la.resposta.a.la.pregunta.anterior.és.afirmativa..indiqui.la.periodicitat..cada.any..trimestre.....i.la.durada.de.la.baixa.més.llarga.i.la.malaltia",
+    Problema_curso22_23="Ha.tengut.problemes.de.veu.importants.i.que.li.han.dificultat.la.feina.al.llarg.del.curs.2022.2023.",
+    Formacion_voz="Té.formació.sobre.salut.vocal.",
+    Medicacion="Pren.alguna.o.algunes.de.les.medicacions.següents..Es.pot.marcar.més.d.una.opció",
+    Higiene_vocal="Segueix.una.rutina.d.higiene.vocal.",
+    Actividades="Fa.alguna.de.les.activitats.següents..Es.pot.marcar.més.d.una.opció",
+    No_me_ecuchan="La.gent.em.sent.amb.dificultat.a.causa.de.la.meva.veu",
+    No_me_escuchan_ruido="La.gent.no.m.entén.en.llocs.sorollosos",
+    Alteracion_vida_social="Els.meus.problemes.amb.la.veu.alteren.la.meva.vida.personal.i.social",
+    Desplazado_conversacion="Em.sent.desplaçat.de.les.converses.per.la.meva.veu",
+    Rendimiento_laboral="El.meu.problema.amb.la.veu.afecta.el.rendiment.laboral",
+    Tensar_producir_voz="Not.que.necessit.tensar.la.gola..gargamella..per.produir.la.veu",
+    Calidad_imprevisible="La.qualitat.de.la.meva.veu.és.imprevisible",
+    Me_molesta="La.meva.veu.em.molesta",
+    Minusvalia="La.meva.veu.em.fa.sentir.certa.minusvalidesa",
+    Gente_pregunta="La.gent.em.pregunta..què.et.passa.amb.la.veu."
+)
+
+glimpse(raw_data) #sobra para el informe final pero está aquí por si lo necesitais
+```
+
+Podemos observar que hay 185 respuestas y 37 variables. Vamos a limpiar los nombres de las variables y a convertir las variables categóricas en factores, a excepción de las variables "importancia_voz", "importancia_deporte" y "dieta_saludable" que las dejamos como variables cuantitativas discretas.
+
+```{r, include=FALSE}
+# limpiar algunos datos
+data <- janitor::clean_names(raw_data) %>% 
+        mutate(across(-c(importancia_voz,
+                         importancia_deporte,
+                         dieta_saludable), as.factor))
+
+glimpse(data) #no es necesario para el informe final
+
+```
+
+A continuación, calcularemos el índice de calidad de voz (VHI) como hemos mencionado anteriormente, sumando todos los valores de las columnas seleccionadas como indicadores del susodicho, estas son desde la 28 hasta la 37. Primero deberemos convertirlas en variables cuantitativas discretas.
+
+```{r, include=FALSE}
+# Transforma las últimas preguntas en numérico y posteriormente los suma
+datos<-data %>% select(28:37) %>% 
+  mutate(across(everything(), ~case_when(
+     . == "Mai" ~ 0,
+     . == "Gairebé mai" ~ 1,
+     . == "A vegades" ~ 2,
+     . == "Gairebé sempre" ~ 3,
+     . == "Sempre" ~ 4
+   ))
+   )
+
+datos<-datos %>% mutate(VHI=rowSums(datos))
+
+glimpse(datos) 
+```
+
+Por último, vamos a añadir la variable VHI al dataframe original y a eliminar las variables de la 28 a la 37.
+
+```{r, include=FALSE}
+# Aquí habia un typo donde ponia datos$score pero lo habian puesto VHI a la puntuación
+data<-data %>% select(-c(28:37))%>% 
+   bind_cols(VHI=datos$VHI)
+glimpse(data) 
+```
+
+## ¿Hay mayor incidencia de síntomas vocales en maestras de infantil?
+
+Al tener ya los datos limpios y homogeneizados podemos pasar a la pregunta particular que le ha tocado a nuestro grupo, la pregunta 2, "¿Hay mayor incidencia de síntomas vocales en maestras de infantil?".
+
+```{r, include=FALSE}
+#nuevo dataset con una columna que nos indica el cuerpo docente y otra con el diagnostico
+sub_data=data.frame(data$cuerpo_docente,data$diagnostico_especialista)
+#miramos cuantos valores unicos hay en la columna de cuerpo docente
+profesiones=unique(sub_data$data.cuerpo_docente)
+length(profesiones)
+# como dice Irene aquí hay demasiadas profesiones, intentemos agruparlas
+```
+
+Podemos ver como en total hay 20 "profesiones" lo qual no ayudará para representarlo gráficamente, agrupemos algunas profesiones.
+
+```{r, echo=FALSE}
+profesiones
+```
+
+Podríamos seprarlo en Infantil, Primaria, Secundaria/Bachiller, Universidad, Formación Professional, Música/Artes Escénicas y Régimen Especial. Para hacerlo usaremos mutate.
+
+```{r, include=FALSE}
+sub_data_limpia<-sub_data %>% 
+  mutate(across(everything(),~case_when(
+     . == "Formació Professional"~ "Formación Profesional",
+     . %in% c("Secundaria i Batxillerat","Educació Secundària") ~ "Secundaria/Bachiller",
+     . == "Educació Infantil"~"Infantil",
+     . %in% c("Universitat","Universidad")~"Universidad",
+     . %in% c("Professor de saxòfon en el Conservatori Professional de Música ","Música i arts escèniques","conservatori","Arts escèniques (Conservatorio, dansa)","Conservatori","Música i Arts escèniques. Dansa Clàssica.","Música i arts escèniques ","Conservatori professional ","Música i Arts Escèniques ")~"Música/Artes Escénicas",
+     . %in% c("Règim Especial","Règim Especial (Secundària)","UEECO ")~"Regimen Especial",
+     . %in% c("Educació Primària","Ed Primària, PT ( Pedagogia Terapèutica) .faig feina a Institut")~"Primaria",
+     TRUE~.
+   )))
+
+colnames(sub_data_limpia)=c("cuerpo_docente","diagnostico_especialista")
+unique(sub_data_limpia$cuerpo_docente)
+glimpse(sub_data_limpia)
+```
+
+Ahora solo tenemos las 7 categorías de profesores agrupadas, podemos hacer un gráfico para ver las distribuciones según si algun médico especialista le ha diagnosticado alguna lesión a las cuerdas vocales:
+
+```{r, echo=FALSE}
+taula=table(sub_data_limpia)
+taula=as.data.frame(taula)
+
+ggplot(taula, aes(fill = diagnostico_especialista, y = Freq, x = cuerpo_docente)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.8) +
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 0.5)) +
+  labs(
+    x = "Cuerpos docentes",
+    y = "Frecuencia",
+    fill = "Diagnósticados por especialista\nen lesiones en las cuerdas vocales"
+  )+
+  scale_fill_manual(values = c("No" = "#FF83FA", "No ho record" = "#C1FFC1", "Si" = "#3357FF"))+
+  ggtitle("Distribución de Diagnósticos por Cuerpos Docentes")
+```
+
+Ahora, añadiremos una tabla de proporciones que nos indica la proporción de Si, No, No ho record de cada cuerpo docente.
+
+```{r, include=FALSE}
+# Crear la tabla con el conteo de problemas
+numero_problemas <- sub_data_limpia %>%
+  group_by(cuerpo_docente) %>%
+  summarise(
+    total_docentes = n(), 
+    problemas_si = sum(diagnostico_especialista == "Si", na.rm = TRUE),  # Cantidad que respondió "sí"
+    problemas_ns = sum(diagnostico_especialista == "No ho record", na.rm = TRUE),  # Cantidad que respondió "No ho record"
+    problemas_no = sum(diagnostico_especialista == "No", na.rm = TRUE)   # Cantidad que respondió "no"
+  )
+
+# Crear una nueva tabla con las proporciones
+proporciones_problemas <- numero_problemas %>%
+  mutate(
+    prop_si = round(problemas_si / total_docentes, 3),
+    prop_ns = round(problemas_ns / total_docentes, 3),
+    prop_no = round(problemas_no / total_docentes, 3)
+  )
+proporciones_problemas <- proporciones_problemas %>%
+  select(cuerpo_docente, prop_si, prop_ns, prop_no)
+
+names(proporciones_problemas) <- c("CuerpoDocente","Proporcion:Si", "Proprcion: No ho record", "Proporcion:No")
+
+proporciones_problemas
+
+```
+
+```{r, echo=FALSE}
+# Crear una tabla con gt
+tabla_bonita <- proporciones_problemas %>%
+  gt() %>%
+  tab_header(
+    title = "Proporciones de Problemas por Cuerpo Docente",
+    subtitle = "Análisis de diagnóstico del especialista"
+  ) %>%
+  fmt_percent(
+    columns = c("Proporcion:Si", "Proprcion: No ho record", "Proporcion:No"),
+    decimals = 1
+  ) %>%
+  cols_label(
+    CuerpoDocente = "Cuerpo Docente",
+    `Proporcion:Si` = "Sí",
+    `Proprcion: No ho record` = "No Record",
+    `Proporcion:No` = "No"
+  ) %>%
+  tab_options(
+    table.font.size = px(14),
+    heading.title.font.size = px(18),
+    heading.subtitle.font.size = px(14)
+  )
+
+# Mostrar la tabla
+tabla_bonita
+```
+
+De esta tabla podemos observar como los maestros de infantil junto con los de régimen especial son los que más diagnósticos de lesiones en las cuerdas vocales han recibido, por lo que podria significar una respuesta afirmativa ante la pregunta que nos ha sido planteada. Para estudiar esto con más detalle se podria hacer alguna inferencia donde comparamos estos valores con la probabilidad de par¡decer un problema, pero con la muestra que nos ha sido dada los resultados no serían fiables por la poca densidad muestral.
+
+Una vez visualizados los datos, vamos a realizar un test para analizar si realmente los maestro de infantil tienen una mayor tendencia a tener problemas en la voz. Entonces, el contraste a realizar seria el siguiente:
+
+$$ \begin{cases} H_0: p_{infantil} = p_{otros} \\ H_1: p_{infantil}> p_{otros} \end{cases} $$ Para ello, realizaremos el test exacto de Fisher, el cual solo necesitamos que la muestra sea independiente para aplicarlo.
+
+```{r, include=FALSE}
+# Crear la tabla de contingencia
+tabla <- matrix(c(3, 30, 9, 143), nrow = 2)
+
+# Realizar el test de Fisher
+resultado_fisher <- fisher.test(tabla, alternative = "greater")
+
+# Ver el resultado
+print(resultado_fisher)
+```
+
+Observamos un p-valor de 0.364, lo cual es mayor al nivel de significancia, 0.05. Esto nos indica que no hay indicios suficientes para rechazar la hipótesis nula, es decir, que la proporción de maestros de infantil con problemas vocales puede que sea mayor a la de los otros docentes.
